@@ -1,0 +1,45 @@
+﻿pragma solidity ^0.4.25;
+
+contract Demo_giaodich{
+    address address_person; // Khai bao dia chi cho 1 nguoi
+    mapping(address => uint) wallet_person; // Khai báo ví tiền sẽ tham chiếu 1 address
+    
+    event PrintString(string s); // Chức năng để in đoạn string
+    event SentStatus(string s, address address_from, address address_to, uint amount);
+    
+    // chức năng get set của 1 address 
+    function setAddress_person(address ADDRESS_PERSON) public{
+        address_person=ADDRESS_PERSON;
+    }
+    function getAddress_person() constant public returns(address){
+        return address_person;
+    }
+    
+    // Funtion request ether
+    function Deposite() public payable{
+        wallet_person[address_person] += address(this).balance;
+    }
+    
+    // chức năng xem ví của 1 address nào đó
+    function getWallet_person() public constant returns(uint){
+        return wallet_person[address_person];
+    }
+    
+    //Chức năng gửi tiền
+    function send_ether(address receiver, uint amount) public{
+        if(wallet_person[address_person]<amount)
+        {
+            emit PrintString("Error: you don't have enough Amount to send");
+            return;
+        }
+        if(receiver == address_person)
+        {
+            emit PrintString("Error: Dont to send by myself");
+            return;
+        }
+        wallet_person[address_person] -= amount;
+        wallet_person[receiver] += amount;
+        address_person.transfer(amount);
+        emit SentStatus("Sent successful!!!", address_person, receiver, amount);
+    }
+}
